@@ -1,0 +1,11 @@
+cmp() {
+    "/home/cesarov/my_scripts/compile_helper" "$(pwd)" "$1" 0 "${@:2}"
+}
+
+asan() {
+    "/home/cesarov/my_scripts/"compile_helper $(pwd) $1 1 "${@:2}"
+}
+
+grind() {
+    "/home/cesarov/my_scripts/"compile_helper $(pwd) $1 2 "${@:2}"
+}
