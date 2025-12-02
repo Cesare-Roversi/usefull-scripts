@@ -90,6 +90,7 @@ int main(int argc, char** argv){
     }
     int r = system(bash_command);
 
+    free(bash_command);
     free(compile_with);
     free(clean_name);
     free(dir);
