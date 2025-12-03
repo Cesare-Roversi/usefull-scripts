@@ -10,12 +10,10 @@ enum TYPE{
 };
 
 
-char *slice(const char *s, int start, int end) {
+void slice(char* dest, char* src, int start, int end) {
     int len = end - start;
-    char *out = malloc(len + 1);   // +1 for '\0'
-    memcpy(out, s + start, len);
-    out[len] = '\0';
-    return out;
+    memcpy(dest, src + start, len);
+    dest[len] = '\0';
 }
 
 
@@ -23,7 +21,8 @@ enum TYPE get_type(char* name){
     int last_char_ix = strlen(name)-2; 
     for(int i = last_char_ix; i >=0; i--){
         if(name[i] == '.'){
-            char* str_type = slice(name, i+1, last_char_ix+2);
+            char str_type[50];
+            slice(str_type, name, i+1, last_char_ix+2);
             //printf("sliced: %s\n", str_type);
             enum TYPE type;
             if(strcmp(str_type, "c") == 0){
@@ -34,7 +33,6 @@ enum TYPE get_type(char* name){
                 printf(".type error\n");
                 type = ERROR;
             }
-            free(str_type);
             return(type);
         }
     }
@@ -51,9 +49,9 @@ int main(int argc, char** argv){
         return 1;
     }
 
-    char* dir = malloc(sizeof(*dir)*200);
+    char dir[100];
     strcpy(dir, argv[1]);
-    char* name = malloc(sizeof(*name)*200);
+    char name[100];
     strcpy(name, argv[2]);
     int mode = atoi(argv[3]); 
     // printf("path: %s\nname: %s\nmode: %d\n", dir, name, mode);
@@ -62,17 +60,17 @@ int main(int argc, char** argv){
 
     enum TYPE type = get_type(name);
 
-    char* clean_name;
-    char* compile_with = malloc(sizeof(*compile_with)*10);
+    char clean_name[100];
+    char compile_with[10];
     if(type == type_c){
         strcpy(compile_with, "gcc");
-        clean_name = slice(name, 0, strlen(name)-2);
+        slice(clean_name, name, 0, strlen(name)-2);
     }else if(type == type_cpp){
         strcpy(compile_with, "g++");
-        clean_name = slice(name, 0, strlen(name)-4);
+        slice(clean_name, name, 0, strlen(name)-4);
     }
 
-    char* bash_command = malloc(sizeof(*bash_command)*500);
+    char bash_command[1000];
     if(mode == 0){
         sprintf(bash_command, "cd '%s' && %s '%s' -o '%s' && '%s'/'%s'", dir, compile_with, name, clean_name, dir, clean_name);
     }else if(mode == 1){
@@ -89,12 +87,6 @@ int main(int argc, char** argv){
         strcat(bash_command, argv[i]);
     }
     int r = system(bash_command);
-
-    free(bash_command);
-    free(compile_with);
-    free(clean_name);
-    free(dir);
-    free(name);
     
     return 0;
 }
